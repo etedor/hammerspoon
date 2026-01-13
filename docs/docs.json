@@ -1,0 +1,10 @@
+[
+  {
+    "name": "WindowManager",
+    "version": "1.0.0",
+    "author": "Eric Tedor <eric@tedor.org>",
+    "description": "adaptive window tiling and focus management for macOS",
+    "license": "MIT",
+    "homepage": "https://github.com/etedor/hammerspoon"
+  }
+]
