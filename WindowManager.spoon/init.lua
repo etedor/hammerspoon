@@ -33,15 +33,15 @@ function obj:init()
 	dofile(hs.spoons.resourcePath("focus-cluster.lua"))
 	dofile(hs.spoons.resourcePath("switcher.lua"))
 
+	return self
+end
+
+function obj:start()
 	-- optional: monitor input toggle (requires m1ddc)
 	if self.enableInputToggle then
 		dofile(hs.spoons.resourcePath("input-toggle.lua"))
 	end
 
-	return self
-end
-
-function obj:start()
 	hs.alert.show("WindowManager loaded")
 	return self
 end
