@@ -1,0 +1,53 @@
+--- WindowManager.spoon
+--- adaptive window tiling and focus management for macos
+---
+--- homepage: https://github.com/etedor/hammerspoon
+--- license: MIT
+
+local obj = {}
+obj.__index = obj
+
+obj.name = "WindowManager"
+obj.version = "1.0.0"
+obj.author = "Eric Tedor <eric@tedor.org>"
+obj.license = "MIT - https://opensource.org/licenses/MIT"
+obj.homepage = "https://github.com/etedor/hammerspoon"
+
+obj.padding = 0
+obj.ultrawideThreshold = 2.0
+obj.terminalApp = "Ghostty"
+obj.enableInputToggle = false
+
+function obj:init()
+	-- create settings table for modules to access
+	_G.windowManagerSettings = {
+		padding = self.padding,
+		ultrawideThreshold = self.ultrawideThreshold,
+		terminalApp = self.terminalApp,
+	}
+
+	-- load modules
+	dofile(hs.spoons.resourcePath("reload.lua"))
+	dofile(hs.spoons.resourcePath("tiling.lua"))
+	dofile(hs.spoons.resourcePath("focus-spatial.lua"))
+	dofile(hs.spoons.resourcePath("focus-cluster.lua"))
+	dofile(hs.spoons.resourcePath("switcher.lua"))
+
+	-- optional: monitor input toggle (requires m1ddc)
+	if self.enableInputToggle then
+		dofile(hs.spoons.resourcePath("input-toggle.lua"))
+	end
+
+	return self
+end
+
+function obj:start()
+	hs.alert.show("WindowManager loaded")
+	return self
+end
+
+function obj:stop()
+	return self
+end
+
+return obj
