@@ -1,5 +1,47 @@
 # WindowManager.spoon
 
+## Workflow
+
+Follow the **Explore-Plan-Code-Commit** pattern:
+
+1. **Explore**: Read files, understand existing code before proposing changes
+2. **Plan**: Create implementation plans, consider edge cases
+3. **Code**: Make focused changes with clear intent
+4. **Commit**: Update documentation, rebuild zip, commit with attribution
+
+**Living Documentation**: Use the `#` key during sessions to auto-update this file with learned patterns.
+
+## Git Worktrees
+
+When working in a worktree context (additional directory ending in pattern like `hammerspoon-feat-name`):
+
+**CRITICAL**: Always `cd` into the worktree directory before running git commands. Bash commands execute in the original working directory by default.
+
+```bash
+# correct - commands run in worktree context
+cd ../hammerspoon-feat-name && git status
+cd ../hammerspoon-feat-name && git add -A && git commit
+
+# incorrect - commands run in main directory
+git status
+```
+
+When in doubt about which directory a command will execute in, explicitly specify the path.
+
+## Commit Messages
+
+All commits include Claude Code attribution:
+
+```
+<terse description>
+
+<optional details>
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
 ## Repository Structure
 
 This repository follows the SpoonInstall format for automatic installation via Hammerspoon's SpoonInstall plugin.
