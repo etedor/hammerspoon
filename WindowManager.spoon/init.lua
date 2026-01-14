@@ -19,7 +19,11 @@ obj.terminalApp = "Ghostty"
 obj.enableInputToggle = false
 
 function obj:init()
-	-- create settings table for modules to access
+	return self
+end
+
+function obj:start()
+	-- create settings table for modules to access (after config is applied)
 	_G.windowManagerSettings = {
 		padding = self.padding,
 		ultrawideThreshold = self.ultrawideThreshold,
@@ -33,10 +37,6 @@ function obj:init()
 	dofile(hs.spoons.resourcePath("focus-cluster.lua"))
 	dofile(hs.spoons.resourcePath("switcher.lua"))
 
-	return self
-end
-
-function obj:start()
 	-- optional: monitor input toggle (requires m1ddc)
 	if self.enableInputToggle then
 		dofile(hs.spoons.resourcePath("input-toggle.lua"))
