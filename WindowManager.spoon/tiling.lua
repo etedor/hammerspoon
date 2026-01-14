@@ -1,19 +1,24 @@
 -- adaptive tiling: detects ultrawide vs standard per-screen
 --
--- ultrawide (21:9+):
---   l/r/u     = left/right/center third (full height)
+-- ultrawide (21:9+): configurable split (default: 30/40/30)
+--   l/r/u     = left/right/center column (full height)
 --   down      = swap left ↔ center columns
---   l+u, l+d  = top/bottom left sixth
---   r+u, r+d  = top/bottom right sixth
+--   l+u, l+d  = top/bottom left
+--   r+u, r+d  = top/bottom right
 --
--- standard (16:9):
---   l/r       = left/right half (full height)
+-- standard (16:9): configurable split (default: 50/50)
+--   l/r       = left/right column (full height)
 --   l+u, l+d  = top/bottom left quarter
 --   r+u, r+d  = top/bottom right quarter
 
 local settings = _G.windowManagerSettings or {}
 local padding = settings.padding or 0
 local ultrawideThreshold = settings.ultrawideThreshold or 2.0
+local ultrawideLeftWidth = settings.ultrawideLeftWidth or 0.30
+local ultrawideCenterWidth = settings.ultrawideCenterWidth or 0.40
+local ultrawideRightWidth = settings.ultrawideRightWidth or 0.30
+local standardLeftWidth = settings.standardLeftWidth or 0.50
+local standardRightWidth = settings.standardRightWidth or 0.50
 
 hs.window.animationDuration = 0 -- instant
 
@@ -35,22 +40,22 @@ local function isUltrawide(screen)
 end
 
 -- tile to column/row on ultrawide (thirds with wider center)
--- proportions: 30% / 40% / 30% (center is ~20% bigger)
 local function tileThirds(win, sf, col, row)
 	local usableW = sf.w - 4 * padding
-	local sideW = usableW * 0.30
-	local centerW = usableW * 0.40
+	local leftW = usableW * ultrawideLeftWidth
+	local centerW = usableW * ultrawideCenterWidth
+	local rightW = usableW * ultrawideRightWidth
 
 	local x, w
 	if col == 0 then
 		x = sf.x + padding
-		w = sideW
+		w = leftW
 	elseif col == 1 then
-		x = sf.x + padding + sideW + padding
+		x = sf.x + padding + leftW + padding
 		w = centerW
 	else
-		x = sf.x + padding + sideW + padding + centerW + padding
-		w = sideW
+		x = sf.x + padding + leftW + padding + centerW + padding
+		w = rightW
 	end
 
 	local y, h
@@ -66,10 +71,20 @@ local function tileThirds(win, sf, col, row)
 	win:setFrame({ x = x, y = y, w = w, h = h })
 end
 
--- tile to column/row on standard (halves)
+-- tile to column/row on standard
 local function tileHalves(win, sf, col, row)
-	local colW = (sf.w - 3 * padding) / 2
-	local x = sf.x + padding + col * (colW + padding)
+	local usableW = sf.w - 3 * padding
+	local leftW = usableW * standardLeftWidth
+	local rightW = usableW * standardRightWidth
+
+	local x, w
+	if col == 0 then
+		x = sf.x + padding
+		w = leftW
+	else
+		x = sf.x + padding + leftW + padding
+		w = rightW
+	end
 
 	local y, h
 	if row == nil then
@@ -81,7 +96,7 @@ local function tileHalves(win, sf, col, row)
 		h = rowH
 	end
 
-	win:setFrame({ x = x, y = y, w = colW, h = h })
+	win:setFrame({ x = x, y = y, w = w, h = h })
 end
 
 -- detect which column a window is in (ultrawide: 0/1/2, standard: 0/1)
@@ -90,9 +105,8 @@ local function getWindowColumn(win, sf, ultrawide)
 	local centerX = wf.x + wf.w / 2
 	local relX = centerX - sf.x
 	if ultrawide then
-		-- match 30/40/30 proportions
-		local boundary1 = sf.w * 0.30
-		local boundary2 = sf.w * 0.70
+		local boundary1 = sf.w * ultrawideLeftWidth
+		local boundary2 = sf.w * (ultrawideLeftWidth + ultrawideCenterWidth)
 		if relX < boundary1 then
 			return 0
 		elseif relX < boundary2 then
@@ -101,7 +115,7 @@ local function getWindowColumn(win, sf, ultrawide)
 			return 2
 		end
 	else
-		return (relX < sf.w / 2) and 0 or 1
+		return (relX < sf.w * standardLeftWidth) and 0 or 1
 	end
 end
 
