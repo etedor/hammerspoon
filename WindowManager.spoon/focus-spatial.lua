@@ -47,12 +47,22 @@ end
 
 -- focus window on adjacent monitor in given direction
 local function focusMonitorInDirection(currentWin, direction)
-	if not monitorFocusEnabled then return false end
+	print("focusMonitorInDirection called, direction:", direction)
+
+	if not monitorFocusEnabled then
+		print("monitor focus disabled")
+		return false
+	end
 
 	local screen = currentWin:screen()
 	local nextScreen = screen['to' .. direction](screen)
 
-	if not nextScreen then return false end
+	if not nextScreen then
+		print("no adjacent screen in direction:", direction)
+		return false
+	end
+
+	print("found adjacent screen, moving mouse and focusing")
 
 	-- get target window based on strategy
 	local strategy = settings.monitorFocusStrategy or "recent"
@@ -66,14 +76,19 @@ local function focusMonitorInDirection(currentWin, direction)
 
 	-- move mouse to center of target screen first
 	local frame = nextScreen:frame()
+	print("target screen frame:", frame)
 	hs.mouse.absolutePosition({
 		x = frame.x + frame.w / 2,
 		y = frame.y + frame.h / 2
 	})
+	print("mouse moved to:", hs.mouse.absolutePosition())
 
 	-- then focus window if found (after mouse movement)
 	if targetWin then
+		print("focusing window:", targetWin:title())
 		targetWin:focus()
+	else
+		print("no window to focus on target screen")
 	end
 
 	return true
@@ -81,15 +96,27 @@ end
 
 -- try spatial focus with monitor fallback
 local function tryFocusWithMonitorFallback(direction, focusMethod)
+	print("tryFocusWithMonitorFallback called, direction:", direction)
+
 	local win = hs.window.focusedWindow()
-	if not win then return end
+	if not win then
+		print("no focused window")
+		return
+	end
 
 	local beforeId = win:id()
+	print("before focus, window ID:", beforeId)
 	win[focusMethod](win, nil, true, true)
 
 	local afterWin = hs.window.focusedWindow()
+	local afterId = afterWin and afterWin:id() or "nil"
+	print("after focus, window ID:", afterId)
+
 	if afterWin and afterWin:id() == beforeId then
+		print("focus didn't change, trying monitor jump")
 		focusMonitorInDirection(win, direction)
+	else
+		print("focus changed, no monitor jump needed")
 	end
 end
 
