@@ -33,6 +33,8 @@ spoon.SpoonInstall:andUse("WindowManager", {
     ultrawideThreshold = 2.0,  -- aspect ratio threshold (21:9 ≈ 2.33)
     terminalApp = "Ghostty",  -- terminal app for cmd+` toggle
     enableInputToggle = false,  -- requires m1ddc
+    monitorFocusEnabled = true,  -- enable multi-monitor focus switching
+    monitorFocusStrategy = "recent",  -- "recent" or "edge"
   }
 })
 ```
@@ -50,6 +52,8 @@ local wm = hs.loadSpoon("WindowManager")
 wm.padding = 8
 wm.ultrawideThreshold = 2.0
 wm.terminalApp = "Ghostty"
+wm.monitorFocusEnabled = true
+wm.monitorFocusStrategy = "recent"  -- "recent" or "edge"
 wm:start()
 ```
 
@@ -71,7 +75,7 @@ wm:start()
 
 ### window focus (cmd)
 
-- **cmd+←/→/↑/↓** - focus window (spatial)
+- **cmd+←/→/↑/↓** - focus window / monitor
 - **shift+cmd+↑/↓** - cycle overlapping windows
 
 ### switching
