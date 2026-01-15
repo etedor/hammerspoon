@@ -64,22 +64,17 @@ local function focusMonitorInDirection(currentWin, direction)
 		targetWin = getMostRecentWindowOnScreen(nextScreen)
 	end
 
-	-- always move mouse to center of target screen
+	-- move mouse to center of target screen first
 	local frame = nextScreen:frame()
-	local centerPoint = {
+	hs.mouse.absolutePosition({
 		x = frame.x + frame.w / 2,
 		y = frame.y + frame.h / 2
-	}
+	})
 
-	-- focus window if found
+	-- then focus window if found (after mouse movement)
 	if targetWin then
 		targetWin:focus()
 	end
-
-	-- move mouse after focus (with small delay to ensure it sticks)
-	hs.timer.doAfter(0.01, function()
-		hs.mouse.absolutePosition(centerPoint)
-	end)
 
 	return true
 end
