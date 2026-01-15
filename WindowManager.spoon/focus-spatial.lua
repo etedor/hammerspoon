@@ -94,7 +94,7 @@ local function focusMonitorInDirection(currentWin, direction)
 	return true
 end
 
--- try spatial focus with monitor fallback
+-- try spatial focus with monitor centering
 local function tryFocusWithMonitorFallback(direction, focusMethod)
 	print("tryFocusWithMonitorFallback called, direction:", direction)
 
@@ -104,19 +104,34 @@ local function tryFocusWithMonitorFallback(direction, focusMethod)
 		return
 	end
 
+	local beforeScreen = win:screen()
 	local beforeId = win:id()
-	print("before focus, window ID:", beforeId)
+	print("before focus, window ID:", beforeId, "screen:", beforeScreen:id())
+
 	win[focusMethod](win, nil, true, true)
 
 	local afterWin = hs.window.focusedWindow()
-	local afterId = afterWin and afterWin:id() or "nil"
-	print("after focus, window ID:", afterId)
+	if not afterWin then
+		print("no window after focus")
+		return
+	end
 
-	if afterWin and afterWin:id() == beforeId then
-		print("focus didn't change, trying monitor jump")
-		focusMonitorInDirection(win, direction)
+	local afterScreen = afterWin:screen()
+	local afterId = afterWin:id()
+	print("after focus, window ID:", afterId, "screen:", afterScreen:id())
+
+	-- if screen changed, center mouse on new screen
+	if beforeScreen:id() ~= afterScreen:id() then
+		print("screen changed! centering mouse on new screen")
+		local frame = afterScreen:frame()
+		print("target screen frame:", frame)
+		hs.mouse.absolutePosition({
+			x = frame.x + frame.w / 2,
+			y = frame.y + frame.h / 2
+		})
+		print("mouse moved to:", hs.mouse.absolutePosition())
 	else
-		print("focus changed, no monitor jump needed")
+		print("same screen, no mouse movement")
 	end
 end
 
