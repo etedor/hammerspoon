@@ -23,7 +23,6 @@ obj.standardRightWidth = 0.50
 obj.terminalApp = "Ghostty"
 obj.enableInputToggle = false
 obj.monitorFocusEnabled = true
-obj.monitorFocusStrategy = "recent"
 
 function obj:init()
 	return self
@@ -41,7 +40,6 @@ function obj:start()
 		standardRightWidth = self.standardRightWidth,
 		terminalApp = self.terminalApp,
 		monitorFocusEnabled = self.monitorFocusEnabled,
-		monitorFocusStrategy = self.monitorFocusStrategy,
 	}
 
 	-- load modules
