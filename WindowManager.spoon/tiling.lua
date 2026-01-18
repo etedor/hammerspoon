@@ -2,7 +2,7 @@
 --
 -- ultrawide (21:9+): configurable split (default: 30/40/30)
 --   l/r/u     = left/right/center column (full height)
---   down      = swap left ↔ center columns
+--   down      = swap columns (configurable: left-center or center-right)
 --   l+u, l+d  = top/bottom left
 --   r+u, r+d  = top/bottom right
 --
@@ -19,6 +19,7 @@ local ultrawideCenterWidth = settings.ultrawideCenterWidth or 0.40
 local ultrawideRightWidth = settings.ultrawideRightWidth or 0.30
 local standardLeftWidth = settings.standardLeftWidth or 0.50
 local standardRightWidth = settings.standardRightWidth or 0.50
+local ultrawideSwapMode = settings.ultrawideSwapMode or "left-center"
 
 hs.window.animationDuration = 0 -- instant
 
@@ -130,17 +131,25 @@ local function getWindowRow(win, sf)
 	return (centerY < sf.y + sf.h / 2) and 0 or 1
 end
 
--- swap left and center columns (ultrawide only)
-local function swapLeftCenter(screen, sf)
+-- swap columns based on ultrawideSwapMode setting
+local function swapColumns(screen, sf)
 	local allWindows = hs.window.visibleWindows()
 	for _, w in ipairs(allWindows) do
 		if w:screen():id() == screen:id() and w:isStandard() then
 			local col = getWindowColumn(w, sf, true)
 			local row = getWindowRow(w, sf)
-			if col == 0 then
-				tileThirds(w, sf, 1, row)
-			elseif col == 1 then
-				tileThirds(w, sf, 0, row)
+			if ultrawideSwapMode == "center-right" then
+				if col == 1 then
+					tileThirds(w, sf, 2, row)
+				elseif col == 2 then
+					tileThirds(w, sf, 1, row)
+				end
+			else -- "left-center" (default)
+				if col == 0 then
+					tileThirds(w, sf, 1, row)
+				elseif col == 1 then
+					tileThirds(w, sf, 0, row)
+				end
 			end
 		end
 	end
@@ -224,7 +233,7 @@ local function handleKey(key)
 			elseif firstKey == "up" then
 				tileThirds(currentWin, currentSf, 1, nil)
 			elseif firstKey == "down" then
-				swapLeftCenter(currentScreen, currentSf)
+				swapColumns(currentScreen, currentSf)
 			end
 		else
 			if firstKey == "left" then
